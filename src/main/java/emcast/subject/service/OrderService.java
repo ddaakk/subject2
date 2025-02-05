@@ -1,77 +1,94 @@
 package emcast.subject.service;
 
-import emcast.subject.domain.Item;
-import emcast.subject.domain.Order;
-import emcast.subject.domain.OrderStatus;
-import emcast.subject.domain.User;
-import emcast.subject.dto.service.OrderItemInfo;
-import emcast.subject.dto.service.OrderResponse;
+import emcast.subject.domain.*;
+import emcast.subject.dto.service.*;
 import emcast.subject.exception.CommonException;
-import emcast.subject.repository.ItemRepository;
+import emcast.subject.repository.OrderItemRepository;
 import emcast.subject.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final ItemRepository itemRepository;
+    private final OrderItemRepository orderItemRepository;
 
     private final UserService userService;
+    private final ItemService itemService;
+
 
     @Transactional
-    public Long saveOrder(String username, List<OrderItemInfo> orderItemInfos) {
+    public Long saveOrder(OrderDto orderDto) {
 
-        User user = userService.getUserInfo(username);
-        List<Item> items = getRepositoryItems(orderItemInfos);
+        User user = userService.getUserInfo(orderDto.getUsername());
+        // DB에 있는 아이템 가져옴
+        List<Item> items = itemService.getItemList(orderDto.getOrderItemRequests());
 
-        // 총 가격 계산
-        Long totalPrice = getTotalPrice(items, orderItemInfos);
+        // 1. orderItem 생성, orderItem 에 item 정보 넣기
+        List<OrderItem> orderItems = items.stream().map(item -> {
+            Integer stock = orderDto.getOrderItemRequests().stream()
+                    .filter(dto -> item.getId().equals(dto.getItemId()))
+                    .findFirst()
+                    .get()
+                    .getStock();
+
+            return OrderItem.createOrderItem(item, stock);
+        }).toList();
+
+        orderItemRepository.saveAll(orderItems);
 
 
-        // 주문 생성
-        Order newOrder = Order.builder()
-                .items(items)
-                .status(OrderStatus.INIT)
-                .userId(user.getId())
-                .totalPrice(totalPrice)
-                .build();
+        // 2. order 생성 , orderItem list 넣기
+        Order newOrder = Order.createOrder(orderItems, user.getId());
 
-        // db 저장
+        // 3. orderItem에 order 정보 넣기
+        orderItems.stream().forEach(o -> o.updateOrder(newOrder));
+
+        // 4. db 저장
         orderRepository.save(newOrder);
 
         return newOrder.getId();
     }
 
-    public List<Item> getRepositoryItems(List<OrderItemInfo> orderItemInfos) {
-        List<Long> itemIds = orderItemInfos.stream()
-                .map(OrderItemInfo::getItemId)
-                .toList();
+    public OrderResponse getOrders(String name){
+        User user = userService.getUserInfo(name);
+        List<Order> userOrders = orderRepository.findAllByUserId(user.getId());
+        List<OrderInfo> orderInfos = new ArrayList<>();
 
-        List<Item> items = itemRepository.findAllById(itemIds);
-        if (items.isEmpty()) {
-            throw new CommonException(HttpStatus.FORBIDDEN, "일치하는 상품이 존재하지 않습니다.");
+        for (var order : userOrders) {
+            List<OrderItemInfo> list = order.getOrderItems().stream()
+                    .map(oi -> new OrderItemInfo(oi.getItem().getName(), oi.getPrice(), oi.getStock()))
+                    .toList();
+
+            orderInfos.add(new OrderInfo(list, order.getTotalPrice(), order.getStatus()));
         }
-        return items;
+
+        return new OrderResponse(user.getName(), orderInfos);
     }
 
-    public Long getTotalPrice(List<Item> items, List<OrderItemInfo> orderItemInfos) {
-        Long totalPrice = 0L;
+    @Transactional
+    public Long shipOrder(Long id){
+        Order foundOrder = getOrderById(id);
+        foundOrder.shipOrder();
+        return foundOrder.getId();
+    }
 
-        for (OrderItemInfo orderItemInfo : orderItemInfos) {
-            Long price = items.stream()
-                    .filter(item -> item.getId().equals(orderItemInfo.getItemId()))
-                    .findFirst().get().getPrice();
-            totalPrice += price * orderItemInfo.getStock();
-        }
+    @Transactional
+    public Long cancelOrder(Long id){
+        Order foundOrder = getOrderById(id);
+        foundOrder.cancelOrder();
+        return foundOrder.getId();
+    }
 
-        return totalPrice;
+    private Order getOrderById(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(()-> new CommonException(HttpStatus.BAD_REQUEST, "해당하는 주문이 없습니다."));
     }
 }

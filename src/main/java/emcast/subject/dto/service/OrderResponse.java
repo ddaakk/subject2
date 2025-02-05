@@ -1,14 +1,15 @@
 package emcast.subject.dto.service;
 
+import emcast.subject.domain.Order;
 import emcast.subject.domain.OrderItem;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter
+@AllArgsConstructor
 public class OrderResponse {
-
     private String username;
-    private List<OrderItem> orderItems;
-    private Long price;
+    private List<OrderInfo> orders;
 }

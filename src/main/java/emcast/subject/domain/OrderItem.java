@@ -1,12 +1,15 @@
 package emcast.subject.domain;
 
 import jakarta.persistence.*;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "order_product")
+@Table(name = "order_item")
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderItem {
 
     @Id
@@ -23,9 +26,19 @@ public class OrderItem {
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
 
-    @Builder
-    public OrderItem(Order order, Item item) {
-        this.order = order;
+    public OrderItem(Item item, Integer stock) {
         this.item = item;
+        this.stock = stock;
+        this.price = item.getPrice();
+    }
+
+    public static OrderItem createOrderItem(Item item, Integer stock) {
+        OrderItem orderItem = new OrderItem(item, stock);
+        item.decreaseStock(stock);
+        return orderItem;
+    }
+
+    public void updateOrder(Order order) {
+        this.order = order;
     }
 }

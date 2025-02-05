@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class OrderItemInfo {
-    private String itemName;
-    private Long price;
-    private Integer count;
+public class OrderItemRequest {
+
+    private Long itemId;
+    private Integer stock;
 }

@@ -2,10 +2,12 @@ package emcast.subject.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "users") // 테이블 매핑
 @Getter
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -14,4 +16,7 @@ public class User {
 
     private String name;
 
+    public User(String name) {
+        this.name = name;
+    }
 }

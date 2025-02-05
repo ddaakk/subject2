@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum OrderStatus {
 
-    INIT,
     COMPLETED,
     SHIPPING,
     CANCEL
