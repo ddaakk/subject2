@@ -1,7 +1,5 @@
 package emcast.subject.dto.service;
 
-import emcast.subject.domain.Order;
-import emcast.subject.domain.OrderItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

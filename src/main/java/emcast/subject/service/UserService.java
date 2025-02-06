@@ -15,6 +15,6 @@ public class UserService {
 
     public User getUserInfo(String userName) {
         return userRepository.findByName(userName)
-                .orElseThrow(() -> new CommonException(HttpStatus.INTERNAL_SERVER_ERROR, "회원정보가 없습니다."));
+                .orElseThrow(() -> new CommonException(HttpStatus.BAD_REQUEST, "회원정보가 없습니다."));
     }
 }

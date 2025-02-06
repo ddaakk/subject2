@@ -60,8 +60,11 @@ public class OrderService {
     public OrderResponse getOrders(String name){
         User user = userService.getUserInfo(name);
         List<Order> userOrders = orderRepository.findAllByUserId(user.getId());
-        List<OrderInfo> orderInfos = new ArrayList<>();
+        if (userOrders.isEmpty()) {
+            throw new CommonException(HttpStatus.NO_CONTENT, "회원의 주문 내역이 없습니다.");
+        }
 
+        List<OrderInfo> orderInfos = new ArrayList<>();
         for (var order : userOrders) {
             List<OrderItemInfo> list = order.getOrderItems().stream()
                     .map(oi -> new OrderItemInfo(oi.getItem().getName(), oi.getPrice(), oi.getStock()))
