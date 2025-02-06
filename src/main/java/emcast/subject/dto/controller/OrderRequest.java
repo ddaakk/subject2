@@ -15,7 +15,7 @@ import java.util.List;
 public class OrderRequest {
 
     @NotBlank(message = "사용자 이름을 입력해주세요.")
-    private String username;
+    private String userName;
 
     @NotNull(message = "주문 상품을 선택해주세요.")
     private List<OrderItemRequest> orderItemRequests;

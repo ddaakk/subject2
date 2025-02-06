@@ -10,6 +10,6 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class OrderResponse {
-    private String username;
+    private String userName;
     private List<OrderInfo> orders;
 }

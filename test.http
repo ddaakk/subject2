@@ -3,7 +3,7 @@ POST http://localhost:8080/order
 Content-Type: application/json
 
 {
-  "username": "test",
+  "userName": "test",
   "orderItemRequests": [
     {"itemId": 1, "stock" : 1},
     {"itemId": 2, "stock" : 2},
@@ -16,7 +16,7 @@ POST http://localhost:8080/order
 Content-Type: application/json
 
 {
-  "username": "test",
+  "userName": "test",
   "orderItemRequests": [
     {"itemId": 4, "stock" : 1},
     {"itemId": 5, "stock" : 2},
@@ -26,7 +26,7 @@ Content-Type: application/json
 
 
 ###
-GET http://localhost:8080/orders?username=test
+GET http://localhost:8080/orders?userName=test
 
 ###
 PUT http://localhost:8080/order/ship?id=1

@@ -9,6 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderDto {
 
-    private String username;
+    private String userName;
     private List<OrderItemRequest> orderItemRequests;
 }

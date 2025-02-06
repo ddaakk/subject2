@@ -27,7 +27,7 @@ public class OrderService {
     @Transactional
     public Long saveOrder(OrderDto orderDto) {
 
-        User user = userService.getUserInfo(orderDto.getUsername());
+        User user = userService.getUserInfo(orderDto.getUserName());
         // DB에 있는 아이템 가져옴
         List<Item> items = itemService.getItemList(orderDto.getOrderItemRequests());
 

@@ -17,15 +17,15 @@ public class OrderController {
 
     @PostMapping( "/order")
     public ApiResponse<Long> saveOrder(@Valid @RequestBody OrderRequest request) {
-        OrderDto orderInfo = new OrderDto(request.getUsername(), request.getOrderItemRequests());
+        OrderDto orderInfo = new OrderDto(request.getUserName(), request.getOrderItemRequests());
         Long orderId = orderService.saveOrder(orderInfo);
         return ApiResponse.success(orderId);
     }
 
     //주문 조회
     @GetMapping("/orders")
-    public ApiResponse<OrderResponse> getOrders(@RequestParam String username) {
-        OrderResponse orders = orderService.getOrders(username);
+    public ApiResponse<OrderResponse> getOrders(@RequestParam String userName) {
+        OrderResponse orders = orderService.getOrders(userName);
         return ApiResponse.success(orders);
     }
 
