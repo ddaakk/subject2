@@ -20,12 +20,12 @@ import java.util.List;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
     private Long id;
 
     private Long totalPrice;
 
     private Long userId;
-
 
     @Enumerated(value = EnumType.STRING) // 문자열로 저장
     private OrderStatus status;
